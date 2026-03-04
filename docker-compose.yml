@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: dahtech_db
+      POSTGRES_USER: dahtech_user
+      POSTGRES_PASSWORD: dahtech123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USERNAME: dahtech_user
+      DB_PASSWORD: dahtech123
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/dahtech_db
+      JWT_SECRET: DahTechSuperSecret2024KeyChangeThis
+      APP_BASE_URL: http://localhost:8080
+      CORS_ORIGINS: http://localhost:3000
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
